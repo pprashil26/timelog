@@ -6,6 +6,7 @@ A minimalist offline journal. Open, write, reflect, edit, delete, export, and br
 
 ## Writing
 - Type your entry in the textarea.
+- Press **Enter** for line breaks — they will be preserved in the display.
 - Save your entry by clicking **💾 Save Entry** or pressing **Ctrl/Cmd + Enter**.
 - Multiple entries per day are supported.
 
@@ -13,6 +14,7 @@ A minimalist offline journal. Open, write, reflect, edit, delete, export, and br
 
 ## Reflection Mode
 - Click **Reflection** to browse previous entries.
+- **✏️ Edit** and **🗑️ Delete** buttons appear **together** on the right side of each entry.
 - **✏️ Edit** → click to edit the text of an entry.
 - **🗑️ Delete** → click to remove an entry (with confirmation).
 - **Reflection mode** hides the input area to focus on browsing.
@@ -22,6 +24,7 @@ A minimalist offline journal. Open, write, reflect, edit, delete, export, and br
 ## Filters & Views
 - **Year filter** → select a specific year to browse entries from that year.
 - **Compact layout** → timestamps and text are aligned neatly for readability.
+- **Line breaks preserved** → your formatting is visible exactly as typed.
 - **On This Day** → shows past entries from the same date in previous years.
 - **Dark mode toggle** → switch between light and dark themes.
 

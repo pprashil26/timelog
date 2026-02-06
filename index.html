@@ -42,6 +42,11 @@ background:rgba(0,0,0,.01);}
 }
 .entry .text {
   word-break:break-word; /* wrap text properly */
+  white-space: pre-wrap; /* preserve user line breaks */
+}
+.entry .buttons { 
+  display:flex; 
+  gap:4px;  /* small space between Edit/Delete */
 }
 .entry button {
   font-size:.65rem;
@@ -154,12 +159,15 @@ function renderDay(date,entries){
     entryDiv.className="entry";
     entryDiv.innerHTML=`<div class="time">${e.time}</div><div class="text">${e.text}</div>`;
     if(reflection){
+      const btnContainer = document.createElement("div");
+      btnContainer.className = "buttons";
       const editBtn=document.createElement("button"); editBtn.textContent="✏️";
       editBtn.onclick=()=>editEntry(date,i);
       const delBtn=document.createElement("button"); delBtn.textContent="🗑️";
       delBtn.onclick=()=>deleteEntry(date,i);
-      entryDiv.appendChild(editBtn);
-      entryDiv.appendChild(delBtn);
+      btnContainer.appendChild(editBtn);
+      btnContainer.appendChild(delBtn);
+      entryDiv.appendChild(btnContainer);
     }
     div.appendChild(entryDiv);
   });
