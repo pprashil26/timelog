@@ -203,13 +203,13 @@
       const textarea = document.createElement("textarea");
       textarea.value = currentText;
       textarea.style.width="100%";
-      textarea.style.fontFamily = input.style.fontFamily;
-      textarea.style.fontSize = input.style.fontSize;
-      textarea.style.lineHeight = input.style.lineHeight;
-      textarea.style.padding = input.style.padding;
-      textarea.style.minHeight = "80px";
-      textarea.style.resize = "none";
-      textarea.style.overflowY = "hidden";
+      textarea.style.fontFamily = "Georgia, 'Times New Roman', serif"; // Ensure the font matches the new entry box
+      textarea.style.fontSize = "16px"; // Same size as new entry box
+      textarea.style.lineHeight = "1.5"; // Same line height as new entry box
+      textarea.style.padding = "10px"; // Same padding as new entry box
+      textarea.style.minHeight = "80px"; // Minimum height
+      textarea.style.resize = "none"; // Prevent resizing, it auto-resizes
+      textarea.style.overflowY = "hidden"; // Prevent overflow
 
       function autoResize() {
         textarea.style.height = "auto";
@@ -224,7 +224,7 @@
       saveBtn.onclick = () => {
         data[date][index].text = textarea.value.trim();
         localStorage.setItem("journal", JSON.stringify(data));
-        load(yearFilter.value);
+        load(yearFilter.value); // Reload entries
       };
 
       editContainer.appendChild(textarea);
