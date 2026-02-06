@@ -25,10 +25,32 @@ textarea[readonly]{background:var(--bg); border-bottom:1px dashed var(--border);
 background:rgba(0,0,0,.01);}
 .date { font-size:.75rem; color:var(--muted); margin-bottom:6px; font-weight:500; }
 .today { color:var(--text); font-weight:600; }
-.entry { margin-bottom:8px; font-size:.88rem; position:relative; display:flex; justify-content:space-between; align-items:flex-start; }
-.time { font-size:.7rem; color:var(--muted); margin-right:6px; flex-shrink:0; }
-.entry button { font-size:.65rem; margin-left:4px; padding:1px 3px; color:var(--muted); }
+
+/* COMPACT & ALIGNED ENTRIES */
+.entry {
+  margin-bottom:8px;
+  font-size:.88rem;
+  display:grid;
+  grid-template-columns: auto 1fr auto; /* time | text | buttons */
+  grid-column-gap:6px;
+  align-items:start;
+}
+.time {
+  font-size:.7rem;
+  color:var(--muted);
+  white-space:nowrap;  /* keep time on single line */
+}
+.entry .text {
+  word-break:break-word; /* wrap text properly */
+}
+.entry button {
+  font-size:.65rem;
+  margin-left:0;
+  padding:1px 3px;
+  color:var(--muted);
+}
 .entry button:hover { color:var(--text); }
+
 .on-this-day { margin-top:16px; padding:8px 10px; border:1px dashed var(--border); border-radius:4px;
 font-size:.78rem; font-style:italic; }
 #drawer { display:none; margin-top:8px; border-top:1px solid var(--border); padding-top:8px; }
@@ -61,6 +83,7 @@ border-radius:6px;font-size:.7rem;opacity:.9;z-index:9999;display:none;}
   <button onclick="exportMd()">Export Markdown</button>
   <button onclick="backup()">Backup</button>
   <button onclick="restore()">Restore</button>
+  <button onclick="showReadme()">Read README</button>
 </div>
 
 <input type="file" id="restoreFile" hidden>
@@ -203,6 +226,43 @@ restoreFile.onchange=e=>{
   r.onload=ev=>{ localStorage.setItem("journal",ev.target.result); populateYearFilter(); load(); };
   r.readAsText(e.target.files[0]);
 };
+
+/* READ README */
+function showReadme(){
+  const readmeText = `
+Quiet Journal — Quick Start (Compact & Aligned)
+
+A minimalist offline journal. Open, write, reflect, edit, delete, and export.
+
+Writing:
+- Type in the textarea.
+- Save: click 💾 Save Entry button or press Ctrl/Cmd + Enter.
+
+Reflection Mode:
+- Click Reflection to browse entries.
+- ✏️ Edit → click to edit the text of an entry.
+- 🗑️ Delete → click to remove an entry (with confirmation).
+
+Filters & View:
+- Year filter to see entries from a specific year.
+- Dark mode toggle available.
+- Compact layout aligns timestamps & text for easy reading.
+
+Backup & Export:
+- Backup: single JSON file.
+- Export: TXT / Markdown.
+
+On This Day:
+- Displays entries from previous years on the same day.
+
+PWA & Offline:
+- Install via browser “Add to Home Screen”.
+- Works offline automatically.
+
+> No password — open immediately.
+`;
+  journalDiv.innerHTML = `<pre style="white-space:pre-wrap; font-family:inherit; padding:8px; background:rgba(0,0,0,0.02); border-radius:4px;">${readmeText}</pre>`;
+}
 
 /* CHEAT SHEET */
 if(!localStorage.getItem("seenCheat")){

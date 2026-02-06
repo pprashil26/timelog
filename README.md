@@ -1,29 +1,50 @@
-# Quiet Journal — Quick Start (Compact UI)
+# Quiet Journal — Quick Start (Compact & Aligned)
 
-A minimalist offline journal. Open, write, reflect, edit, delete, and export.
+A minimalist offline journal. Open, write, reflect, edit, delete, export, and browse entries easily.
 
-### Writing
-- Type in the textarea.
-- Save: click **💾 Save Entry** button or press **Ctrl/Cmd + Enter**.
+---
 
-### Reflection Mode
-- Click **Reflection** to browse entries.
+## Writing
+- Type your entry in the textarea.
+- Save your entry by clicking **💾 Save Entry** or pressing **Ctrl/Cmd + Enter**.
+- Multiple entries per day are supported.
+
+---
+
+## Reflection Mode
+- Click **Reflection** to browse previous entries.
 - **✏️ Edit** → click to edit the text of an entry.
 - **🗑️ Delete** → click to remove an entry (with confirmation).
+- **Reflection mode** hides the input area to focus on browsing.
 
-### Filters & View
-- Use the Year filter to see entries from a specific year.
-- Dark mode toggle available.
+---
 
-### Backup & Export
-- Backup: single JSON file.
-- Export: TXT / Markdown.
+## Filters & Views
+- **Year filter** → select a specific year to browse entries from that year.
+- **Compact layout** → timestamps and text are aligned neatly for readability.
+- **On This Day** → shows past entries from the same date in previous years.
+- **Dark mode toggle** → switch between light and dark themes.
 
-### On This Day
-- Displays entries from previous years on the same day.
+---
 
-### PWA & Offline
+## Backup & Export
+- **Backup** → download a JSON backup of all entries.
+- **Restore** → upload a previously backed up JSON to restore all entries.
+- **Export TXT** → download all entries as a plain text file.
+- **Export Markdown** → download all entries in Markdown format.
+
+---
+
+## Read README
+- Click **Read README** in the drawer to view these instructions inside the journal.
+- Works offline and keeps everything in a single page.
+
+---
+
+## PWA & Offline
 - Install via browser “Add to Home Screen”.
-- Works offline automatically.
+- Works offline automatically — no server required.
 
-> No password — open immediately.
+---
+
+> No password is needed — everything is device-based, private, and free.
