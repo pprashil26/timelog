@@ -1,53 +1,41 @@
-# Quiet Journal — Quick Start (Compact & Aligned)
+# Quiet Journal
 
-A minimalist offline journal. Open, write, reflect, edit, delete, export, and browse entries easily.
+A **minimalist offline journal** for writing, reflecting, and tracking daily entries.
 
----
+## Features
 
-## Writing
-- Type your entry in the textarea.
-- Press **Enter** for line breaks — they will be preserved in the display.
-- Save your entry by clicking **💾 Save Entry** or pressing **Ctrl/Cmd + Enter**.
-- Multiple entries per day are supported.
+- **Write & Edit Entries**: Type in the main textarea. Press **Enter** for line breaks. Save with 💾 button or **Ctrl/Cmd + Enter**.
+- **Inline Edit**: Edit entries in-place; large entries auto-resize just like new entries.
+- **Delete**: Remove entries with confirmation.
+- **Reflection Mode**: Browse all past entries with timestamps; edit/delete buttons grouped for easy use.
+- **Compact & Aligned Layout**: Multiple entries visible without scrolling much. Timestamps & text aligned for readability.
+- **On This Day**: View entries from previous years on the same day.
+- **Year Filter**: Quickly filter entries by year.
+- **Dark Mode Toggle**: Switch between light/dark mode; preference saved.
+- **Backup & Restore**: Save a single JSON backup file; restore easily.
+- **Export**: Export your journal as TXT or Markdown.
+- **Read README in App**: View this guide directly inside the journal.
+- **PWA & Offline Ready**: Works offline and installable via browser “Add to Home Screen”.
 
----
+## How to Use
 
-## Reflection Mode
-- Click **Reflection** to browse previous entries.
-- **✏️ Edit** and **🗑️ Delete** buttons appear **together** on the right side of each entry.
-- **✏️ Edit** → click to edit the text of an entry.
-- **🗑️ Delete** → click to remove an entry (with confirmation).
-- **Reflection mode** hides the input area to focus on browsing.
+1. **Open the app** (index.html) in your browser.
+2. **Write a new entry** in the textarea at the top.
+3. **Save**: click 💾 or press **Ctrl/Cmd + Enter**.
+4. **Reflection Mode**: click the **Reflection** button to browse past entries.
+5. **Edit/Delete**: click ✏️ to edit inline, 🗑️ to delete.
+6. **Filters & Tools**: click ⋯ for dark mode, year filter, export, backup/restore, and reading the README.
+7. **Line breaks** are preserved for readability.
+8. **On This Day** shows entries from previous years for the current date.
 
----
+> No password required — open immediately on your device.
 
-## Filters & Views
-- **Year filter** → select a specific year to browse entries from that year.
-- **Compact layout** → timestamps and text are aligned neatly for readability.
-- **Line breaks preserved** → your formatting is visible exactly as typed.
-- **On This Day** → shows past entries from the same date in previous years.
-- **Dark mode toggle** → switch between light and dark themes.
+## Installation
 
----
-
-## Backup & Export
-- **Backup** → download a JSON backup of all entries.
-- **Restore** → upload a previously backed up JSON to restore all entries.
-- **Export TXT** → download all entries as a plain text file.
-- **Export Markdown** → download all entries in Markdown format.
-
----
-
-## Read README
-- Click **Read README** in the drawer to view these instructions inside the journal.
-- Works offline and keeps everything in a single page.
+1. Clone or download this repo.
+2. Open `index.html` in any modern browser.
+3. Optional: deploy on **GitHub Pages** for online access.
 
 ---
 
-## PWA & Offline
-- Install via browser “Add to Home Screen”.
-- Works offline automatically — no server required.
-
----
-
-> No password is needed — everything is device-based, private, and free.
+This journal is **fully offline and free**, designed to keep your daily reflections compact, readable, and easily manageable.
