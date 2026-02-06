@@ -1,37 +1,42 @@
-# Journal
+# Quiet Journal
 
-A private, offline-first journal inspired by Diarium.  
-Runs entirely in your browser. No accounts. No cloud. Free forever.
-
-## Use
-
-- Open the page
-- Write your entry
-- Press **Ctrl / Cmd + Enter** to save with timestamp
-- Click **Reflection** to browse all entries in read-only mode
-- Everything else is hidden behind **⋯** (backup, export, yearly filter, dark mode)
-- A tiny cheat overlay appears the first time you open the page (disappears automatically)
+A minimalist, offline-capable personal journal inspired by Diarium.  
+Fully free and installable as a PWA.
 
 ## Features
 
-- **Minimalist Diarium-style typography** (Georgia font, spacious layout)
-- **Write mode** for journaling
-- **Reflection mode** for safe read-only browsing
-- **Yearly archive filter** to review past years
-- **“On this day”** highlights previous entries from the same date
-- **Dark mode**
-- **Password lock** (first-time setup)
-- **Backup & restore**
-- **Export to TXT or Markdown**
-- Fully **offline-first** and can be installed as a PWA
+- Write mode & Reflection mode (read-only browsing)
+- Dark mode toggle
+- Yearly archive filter
+- "On this day" entries from previous years
+- Backup & restore (single-file JSON)
+- Export entries to TXT or Markdown
+- Cheat overlay with shortcuts
+- PWA installable (offline-ready)
 
-## Notes
+## How to use
 
-- Entries are stored locally in your browser; clearing browser storage will erase them
-- Reflection mode disables editing for safe review
-- Use backup/export regularly to keep your journal safe
-- Minimal UI ensures a quiet, focused journaling experience
+1. Open the journal in your browser.
+2. Write a new entry in the textarea.
+3. Save entry: **Ctrl/Cmd + Enter**
+4. Switch to **Reflection mode** to browse all entries without editing.
+5. Use **Year filter** to view a specific year.
+6. Toggle **dark mode** via the drawer menu.
+7. **Backup/Restore**: export all entries or restore from a JSON file.
+8. **Export**: download all entries as TXT or Markdown.
+9. Install as PWA for offline access via browser menu → "Add to Home Screen".
+
+## Deployment
+
+1. Push the folder to GitHub Pages (or any static host).
+2. Ensure folder includes:
+   - `index.html`
+   - `manifest.json`
+   - `sw.js`
+   - `icon-192.png`
+   - `icon-512.png`
+3. Open site → journal works immediately, offline-capable, and installable.
 
 ---
 
-Keep it simple, keep it quiet, keep it yours.
+> No password required — open and use immediately in any browser.
