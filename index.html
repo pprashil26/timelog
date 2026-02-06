@@ -18,7 +18,7 @@ h1 { font-size:1.1rem; font-weight:500; letter-spacing:.02em; }
 button, select { background:none; border:none; color:var(--muted); font-size:.75rem; cursor:pointer; padding:2px 4px; }
 button:hover { color:var(--text); }
 textarea { width:100%; min-height:80px; padding:10px; border:none; border-bottom:1px solid var(--border);
-background:var(--bg); color:var(--text); font-family:inherit; font-size:.9rem; line-height:1.4; }
+background:var(--bg); color:var(--text); font-family:inherit; font-size:.9rem; line-height:1.4; resize:none; overflow-y:hidden; }
 textarea:focus { outline:none; }
 textarea[readonly]{background:var(--bg); border-bottom:1px dashed var(--border); color:var(--muted);}
 .day { margin-top:24px; padding:8px 10px; border-left:2px solid var(--border); border-radius:4px;
@@ -38,15 +38,15 @@ background:rgba(0,0,0,.01);}
 .time {
   font-size:.7rem;
   color:var(--muted);
-  white-space:nowrap;  /* keep time on single line */
+  white-space:nowrap;
 }
 .entry .text {
-  word-break:break-word; /* wrap text properly */
-  white-space: pre-wrap; /* preserve user line breaks */
+  word-break:break-word;
+  white-space: pre-wrap;
 }
 .entry .buttons { 
   display:flex; 
-  gap:4px;  /* small space between Edit/Delete */
+  gap:4px;
 }
 .entry button {
   font-size:.65rem;
@@ -117,10 +117,18 @@ function toggleMode(){
   load(yearFilter.value);
 }
 
+/* AUTO-RESIZE */
+function autoResizeTextarea(textarea){
+  textarea.style.height="auto";
+  textarea.style.height = textarea.scrollHeight + "px";
+}
+
 /* CORE */
 const input=document.getElementById("input");
 const journalDiv=document.getElementById("journal");
 input.focus();
+input.addEventListener("input", ()=>autoResizeTextarea(input));
+autoResizeTextarea(input);
 
 document.addEventListener("keydown", e => {
   if (!reflection && (e.ctrlKey || e.metaKey) && e.key === "Enter") addEntry();
@@ -140,6 +148,7 @@ function addEntry(){
   input.value=""; input.focus();
 }
 
+/* LOAD ENTRIES */
 function load(year="all"){
   journalDiv.innerHTML="";
   const data=JSON.parse(localStorage.getItem("journal")||"{}");
@@ -162,7 +171,7 @@ function renderDay(date,entries){
       const btnContainer = document.createElement("div");
       btnContainer.className = "buttons";
       const editBtn=document.createElement("button"); editBtn.textContent="✏️";
-      editBtn.onclick=()=>editEntry(date,i);
+      editBtn.onclick=()=>editEntryInline(date,i,entryDiv);
       const delBtn=document.createElement("button"); delBtn.textContent="🗑️";
       delBtn.onclick=()=>deleteEntry(date,i);
       btnContainer.appendChild(editBtn);
@@ -174,17 +183,48 @@ function renderDay(date,entries){
   journalDiv.appendChild(div);
 }
 
-/* EDIT / DELETE */
-function editEntry(date,index){
+/* INLINE EDIT */
+function editEntryInline(date,index,entryDiv){
   const data=JSON.parse(localStorage.getItem("journal")||"{}");
-  const current=data[date][index].text;
-  const newText=prompt("Edit entry:",current);
-  if(newText!==null){
-    data[date][index].text=newText.trim();
+  const currentText = data[date][index].text;
+  const textDiv = entryDiv.querySelector(".text");
+  textDiv.style.display = "none";
+
+  const existing = entryDiv.querySelector(".editContainer");
+  if(existing) existing.remove();
+
+  const editContainer = document.createElement("div");
+  editContainer.className = "editContainer";
+  editContainer.style.display = "flex";
+  editContainer.style.flexDirection = "column";
+  editContainer.style.gap = "4px";
+
+  const textarea = document.createElement("textarea");
+  textarea.value = currentText;
+  textarea.style.width="100%";
+  textarea.style.fontFamily="inherit";
+  textarea.style.fontSize="0.9rem";
+  textarea.style.lineHeight="1.4";
+  textarea.style.minHeight="60px";
+  textarea.addEventListener("input", ()=>autoResizeTextarea(textarea));
+  autoResizeTextarea(textarea);
+
+  const saveBtn = document.createElement("button");
+  saveBtn.textContent="💾 Save";
+  saveBtn.style.alignSelf="flex-start";
+  saveBtn.onclick = () => {
+    data[date][index].text = textarea.value.trim();
     localStorage.setItem("journal",JSON.stringify(data));
     load(yearFilter.value);
-  }
+  };
+
+  editContainer.appendChild(textarea);
+  editContainer.appendChild(saveBtn);
+  entryDiv.appendChild(editContainer);
+  textarea.focus();
 }
+
+/* DELETE */
 function deleteEntry(date,index){
   if(!confirm("Delete this entry?")) return;
   const data=JSON.parse(localStorage.getItem("journal")||"{}");
@@ -244,17 +284,20 @@ A minimalist offline journal. Open, write, reflect, edit, delete, and export.
 
 Writing:
 - Type in the textarea.
+- Press Enter for line breaks — they will appear in display.
 - Save: click 💾 Save Entry button or press Ctrl/Cmd + Enter.
 
 Reflection Mode:
 - Click Reflection to browse entries.
-- ✏️ Edit → click to edit the text of an entry.
+- ✏️ Edit → opens inline textarea for editing.
 - 🗑️ Delete → click to remove an entry (with confirmation).
+- Edit/Delete buttons are grouped together.
 
 Filters & View:
 - Year filter to see entries from a specific year.
 - Dark mode toggle available.
 - Compact layout aligns timestamps & text for easy reading.
+- Line breaks preserved.
 
 Backup & Export:
 - Backup: single JSON file.
