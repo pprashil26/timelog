@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Journal</title>
+<title>Quiet Journal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#fafafa">
@@ -12,38 +12,39 @@
 :root { --bg:#fafafa; --text:#222; --muted:#777; --border:#e5e5e5; }
 body.dark { --bg:#121212; --text:#eaeaea; --muted:#aaa; --border:#333; }
 body { font-family:"Georgia","Times New Roman",serif; background:var(--bg); color:var(--text);
-max-width:720px; margin:auto; padding:32px 24px; line-height:1.8; letter-spacing:.01em; font-size:1rem; }
-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
-h1 { font-size:1.3rem; font-weight:500; letter-spacing:.02em; }
-button, select { background:none; border:none; color:var(--muted); font-size:.85rem; cursor:pointer; padding:4px; }
+max-width:720px; margin:auto; padding:16px 12px; line-height:1.5; letter-spacing:.005em; font-size:.9rem; }
+header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+h1 { font-size:1.1rem; font-weight:500; letter-spacing:.02em; }
+button, select { background:none; border:none; color:var(--muted); font-size:.75rem; cursor:pointer; padding:2px 4px; }
 button:hover { color:var(--text); }
-textarea { width:100%; min-height:120px; padding:16px; border:none; border-bottom:1px solid var(--border);
-background:var(--bg); color:var(--text); font-family:inherit; font-size:1rem; }
+textarea { width:100%; min-height:80px; padding:10px; border:none; border-bottom:1px solid var(--border);
+background:var(--bg); color:var(--text); font-family:inherit; font-size:.9rem; line-height:1.4; }
 textarea:focus { outline:none; }
 textarea[readonly]{background:var(--bg); border-bottom:1px dashed var(--border); color:var(--muted);}
-.day { margin-top:36px; padding:16px 12px; border-left:3px solid var(--border); border-radius:6px;
+.day { margin-top:24px; padding:8px 10px; border-left:2px solid var(--border); border-radius:4px;
 background:rgba(0,0,0,.01);}
-.date { font-size:.85rem; color:var(--muted); margin-bottom:10px; font-weight:500; }
+.date { font-size:.75rem; color:var(--muted); margin-bottom:6px; font-weight:500; }
 .today { color:var(--text); font-weight:600; }
-.entry { margin-bottom:16px; font-size:1rem; position:relative; }
-.time { font-size:.75rem; color:var(--muted); margin-bottom:2px; }
-.entry button { font-size:.7rem; margin-left:6px; color:var(--muted); }
+.entry { margin-bottom:8px; font-size:.88rem; position:relative; display:flex; justify-content:space-between; align-items:flex-start; }
+.time { font-size:.7rem; color:var(--muted); margin-right:6px; flex-shrink:0; }
+.entry button { font-size:.65rem; margin-left:4px; padding:1px 3px; color:var(--muted); }
 .entry button:hover { color:var(--text); }
-.on-this-day { margin-top:28px; padding:14px; border:1px dashed var(--border); border-radius:6px;
-font-size:.88rem; font-style:italic; }
-#drawer { display:none; margin-top:12px; border-top:1px solid var(--border); padding-top:12px; }
-#drawer button, #drawer select { display:block; margin:6px 0; color:var(--text); }
-#cheat { position:fixed;top:8px;left:50%;transform:translateX(-50%);
-background:var(--bg);color:var(--muted);padding:6px 12px;border:1px solid var(--border);
-border-radius:6px;font-size:.8rem;opacity:.9;z-index:9999;display:none;}
+.on-this-day { margin-top:16px; padding:8px 10px; border:1px dashed var(--border); border-radius:4px;
+font-size:.78rem; font-style:italic; }
+#drawer { display:none; margin-top:8px; border-top:1px solid var(--border); padding-top:8px; }
+#drawer button, #drawer select { display:block; margin:4px 0; color:var(--text); font-size:.75rem; }
+#cheat { position:fixed;top:4px;left:50%;transform:translateX(-50%);
+background:var(--bg);color:var(--muted);padding:4px 8px;border:1px solid var(--border);
+border-radius:6px;font-size:.7rem;opacity:.9;z-index:9999;display:none;}
+#saveBtn { display:block; margin:4px 0; padding:6px 10px; font-size:.85rem; cursor:pointer; }
 </style>
 </head>
 
 <body>
-<div id="cheat">Ctrl/Cmd+Enter to save • ⋯ for tools • Reflection to browse • ✏️ Edit • 🗑️ Delete</div>
+<div id="cheat">💾 Ctrl/Cmd+Enter to save • ⋯ for tools • Reflection to browse • ✏️ Edit • 🗑️ Delete</div>
 
 <header>
-  <h1>Journal</h1>
+  <h1>Quiet Journal</h1>
   <div>
     <button onclick="toggleDrawer()">⋯</button>
     <button onclick="toggleMode()" id="modeBtn">Reflection</button>
@@ -51,6 +52,7 @@ border-radius:6px;font-size:.8rem;opacity:.9;z-index:9999;display:none;}
 </header>
 
 <textarea id="input" placeholder="Write…"></textarea>
+<button id="saveBtn">💾 Save Entry (Ctrl/Cmd + Enter)</button>
 
 <div id="drawer">
   <button onclick="toggleDark()">Toggle dark mode</button>
@@ -77,21 +79,26 @@ function toggleDark(){
 
 /* REFLECTION MODE */
 let reflection=false;
+const saveBtn = document.getElementById("saveBtn");
 function toggleMode(){
   reflection=!reflection;
-  modeBtn.textContent=reflection?"Write":"Reflection";
-  input.readOnly=reflection;
+  modeBtn.textContent = reflection ? "Write" : "Reflection";
+  input.readOnly = reflection;
   input.style.display = reflection ? "none" : "block";
-  load(yearFilter.value); // <--- re-render entries to show buttons
+  saveBtn.style.display = reflection ? "none" : "block";
+  load(yearFilter.value);
 }
 
 /* CORE */
 const input=document.getElementById("input");
 const journalDiv=document.getElementById("journal");
 input.focus();
-document.addEventListener("keydown",e=>{
-  if(!reflection&&(e.ctrlKey||e.metaKey)&&e.key==="Enter") addEntry();
+
+document.addEventListener("keydown", e => {
+  if (!reflection && (e.ctrlKey || e.metaKey) && e.key === "Enter") addEntry();
 });
+saveBtn.onclick = addEntry;
+
 function todayKey(d=new Date()){return d.toISOString().split("T")[0];}
 
 function addEntry(){
@@ -121,7 +128,7 @@ function renderDay(date,entries){
     ${date===todayKey()?"Today — ":""}${d.toDateString()}</div>`;
   entries.forEach((e,i)=>{
     const entryDiv = document.createElement("div");
-    entryDiv.className="entry';
+    entryDiv.className="entry";
     entryDiv.innerHTML=`<div class="time">${e.time}</div><div class="text">${e.text}</div>`;
     if(reflection){
       const editBtn=document.createElement("button"); editBtn.textContent="✏️";
