@@ -1,6 +1,6 @@
 # Quick Start
 
-A minimalist offline journal. Open, write, reflect, edit, and export.
+A minimalist offline journal. Open, write, reflect, edit, delete, and export.
 
 ### Writing
 - Type in the textarea.
@@ -8,11 +8,11 @@ A minimalist offline journal. Open, write, reflect, edit, and export.
 
 ### Reflection Mode
 - Switch to Reflection to browse entries.
-- ✏️ Edit entry.
-- 🗑️ Delete entry.
+- **✏️ Edit** → click to edit the text of an entry.
+- **🗑️ Delete** → click to remove an entry (with confirmation).
 
 ### Filters & View
-- Use Year filter to see specific years.
+- Use the Year filter to see specific years.
 - Dark mode toggle available.
 
 ### Backup & Export
