@@ -1,42 +1,26 @@
-# Quiet Journal
+# Quick Start
 
-A minimalist, offline-capable personal journal inspired by Diarium.  
-Fully free and installable as a PWA.
+A minimalist offline journal. Open, write, reflect, edit, and export.
 
-## Features
+### Writing
+- Type in the textarea.
+- Save: **Ctrl/Cmd + Enter**.
 
-- Write mode & Reflection mode (read-only browsing)
-- Dark mode toggle
-- Yearly archive filter
-- "On this day" entries from previous years
-- Backup & restore (single-file JSON)
-- Export entries to TXT or Markdown
-- Cheat overlay with shortcuts
-- PWA installable (offline-ready)
+### Reflection Mode
+- Switch to Reflection to browse entries.
+- ✏️ Edit entry.
+- 🗑️ Delete entry.
 
-## How to use
+### Filters & View
+- Use Year filter to see specific years.
+- Dark mode toggle available.
 
-1. Open the journal in your browser.
-2. Write a new entry in the textarea.
-3. Save entry: **Ctrl/Cmd + Enter**
-4. Switch to **Reflection mode** to browse all entries without editing.
-5. Use **Year filter** to view a specific year.
-6. Toggle **dark mode** via the drawer menu.
-7. **Backup/Restore**: export all entries or restore from a JSON file.
-8. **Export**: download all entries as TXT or Markdown.
-9. Install as PWA for offline access via browser menu → "Add to Home Screen".
+### Backup & Export
+- Backup: single JSON file.
+- Export: TXT / Markdown.
 
-## Deployment
+### PWA & Offline
+- Install via browser “Add to Home Screen”.
+- Works offline automatically.
 
-1. Push the folder to GitHub Pages (or any static host).
-2. Ensure folder includes:
-   - `index.html`
-   - `manifest.json`
-   - `sw.js`
-   - `icon-192.png`
-   - `icon-512.png`
-3. Open site → journal works immediately, offline-capable, and installable.
-
----
-
-> No password required — open and use immediately in any browser.
+> No password — open immediately.
