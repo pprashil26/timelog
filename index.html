@@ -4,53 +4,33 @@
 <meta charset="UTF-8">
 <title>Journal</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#fafafa">
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <style>
-:root {
-  --bg:#fafafa; --text:#222; --muted:#777; --border:#e5e5e5;
-}
-body.dark {
-  --bg:#121212; --text:#eaeaea; --muted:#aaa; --border:#333;
-}
-body {
-  font-family:"Georgia","Times New Roman",serif;
-  background:var(--bg); color:var(--text);
-  max-width:720px; margin:auto; padding:32px 24px;
-  line-height:1.8; letter-spacing:.01em; font-size:1rem;
-}
+:root { --bg:#fafafa; --text:#222; --muted:#777; --border:#e5e5e5; }
+body.dark { --bg:#121212; --text:#eaeaea; --muted:#aaa; --border:#333; }
+body { font-family:"Georgia","Times New Roman",serif; background:var(--bg); color:var(--text);
+max-width:720px; margin:auto; padding:32px 24px; line-height:1.8; letter-spacing:.01em; font-size:1rem; }
 header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
 h1 { font-size:1.3rem; font-weight:500; letter-spacing:.02em; }
-button, select {
-  background:none; border:none; color:var(--muted);
-  font-size:.85rem; cursor:pointer; padding:4px;
-}
+button, select { background:none; border:none; color:var(--muted); font-size:.85rem; cursor:pointer; padding:4px; }
 button:hover { color:var(--text); }
-textarea {
-  width:100%; min-height:120px; padding:16px;
-  border:none; border-bottom:1px solid var(--border);
-  background:var(--bg); color:var(--text);
-  font-family:inherit; font-size:1rem;
-}
+textarea { width:100%; min-height:120px; padding:16px; border:none; border-bottom:1px solid var(--border);
+background:var(--bg); color:var(--text); font-family:inherit; font-size:1rem; }
 textarea:focus { outline:none; }
 textarea[readonly]{background:var(--bg); border-bottom:1px dashed var(--border); color:var(--muted);}
-.day {
-  margin-top:36px; padding:16px 12px; border-left:3px solid var(--border); border-radius:6px;
-  background:rgba(0,0,0,.01);
-}
+.day { margin-top:36px; padding:16px 12px; border-left:3px solid var(--border); border-radius:6px;
+background:rgba(0,0,0,.01);}
 .date { font-size:.85rem; color:var(--muted); margin-bottom:10px; font-weight:500; }
 .today { color:var(--text); font-weight:600; }
-.entry { margin-bottom:16px; font-size:1rem; }
+.entry { margin-bottom:16px; font-size:1rem; position:relative; }
 .time { font-size:.75rem; color:var(--muted); margin-bottom:2px; }
-.on-this-day {
-  margin-top:28px; padding:14px;
-  border:1px dashed var(--border); border-radius:6px;
-  font-size:.88rem; font-style:italic;
-}
+.entry button { font-size:.7rem; margin-left:6px; color:var(--muted); }
+.entry button:hover { color:var(--text); }
+.on-this-day { margin-top:28px; padding:14px; border:1px dashed var(--border); border-radius:6px;
+font-size:.88rem; font-style:italic; }
 #drawer { display:none; margin-top:12px; border-top:1px solid var(--border); padding-top:12px; }
 #drawer button, #drawer select { display:block; margin:6px 0; color:var(--text); }
 #cheat { position:fixed;top:8px;left:50%;transform:translateX(-50%);
@@ -60,9 +40,7 @@ border-radius:6px;font-size:.8rem;opacity:.9;z-index:9999;display:none;}
 </head>
 
 <body>
-
-<!-- Cheat Sheet Overlay -->
-<div id="cheat">Ctrl/Cmd+Enter to save • ⋯ for tools • Reflection to browse</div>
+<div id="cheat">Ctrl/Cmd+Enter to save • ⋯ for tools • Reflection to browse • ✏️ Edit • 🗑️ Delete</div>
 
 <header>
   <h1>Journal</h1>
@@ -140,9 +118,41 @@ function renderDay(date,entries){
   const div=document.createElement("div"); div.className="day";
   div.innerHTML=`<div class="date ${date===todayKey()?"today":""}">
     ${date===todayKey()?"Today — ":""}${d.toDateString()}</div>`;
-  entries.forEach(e=>{div.innerHTML+=`<div class="entry">
-    <div class="time">${e.time}</div>${e.text}</div>`;});
+  entries.forEach((e,i)=>{
+    const entryDiv=document.createElement("div");
+    entryDiv.className="entry";
+    entryDiv.innerHTML=`<div class="time">${e.time}</div><div class="text">${e.text}</div>`;
+    if(reflection){
+      const editBtn=document.createElement("button"); editBtn.textContent="✏️";
+      editBtn.onclick=()=>editEntry(date,i);
+      const delBtn=document.createElement("button"); delBtn.textContent="🗑️";
+      delBtn.onclick=()=>deleteEntry(date,i);
+      entryDiv.appendChild(editBtn);
+      entryDiv.appendChild(delBtn);
+    }
+    div.appendChild(entryDiv);
+  });
   journalDiv.appendChild(div);
+}
+
+/* EDIT / DELETE */
+function editEntry(date,index){
+  const data=JSON.parse(localStorage.getItem("journal")||"{}");
+  const current=data[date][index].text;
+  const newText=prompt("Edit entry:",current);
+  if(newText!==null){
+    data[date][index].text=newText.trim();
+    localStorage.setItem("journal",JSON.stringify(data));
+    load(yearFilter.value);
+  }
+}
+function deleteEntry(date,index){
+  if(!confirm("Delete this entry?")) return;
+  const data=JSON.parse(localStorage.getItem("journal")||"{}");
+  data[date].splice(index,1);
+  if(data[date].length===0) delete data[date];
+  localStorage.setItem("journal",JSON.stringify(data));
+  populateYearFilter(); load(yearFilter.value);
 }
 
 /* YEAR FILTER */
@@ -186,17 +196,18 @@ restoreFile.onchange=e=>{
   r.readAsText(e.target.files[0]);
 };
 
-/* CHEAT SHEET OVERLAY */
+/* CHEAT SHEET */
 if(!localStorage.getItem("seenCheat")){
   const cheat=document.getElementById("cheat");
   cheat.style.display="block";
   setTimeout(()=>{cheat.style.display="none"; localStorage.setItem("seenCheat","true");},5000);
 }
 
-/* SERVICE WORKER REGISTRATION */
+/* SERVICE WORKER */
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
 
 populateYearFilter(); load();
 </script>
 </body>
 </html>
+
