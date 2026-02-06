@@ -75,6 +75,7 @@
     <div>
       <button onclick="toggleDrawer()">⋯</button>
       <button onclick="toggleMode()" id="modeBtn">Reflection</button>
+      <button onclick="toggleDarkMode()" id="darkModeToggle">🌙 Dark Mode</button> <!-- Dark Mode Toggle Button -->
     </div>
   </header>
 
@@ -99,10 +100,16 @@
     function toggleDrawer(){drawer.style.display = drawer.style.display==="block" ? "none" : "block";}
 
     /* DARK MODE */
-    if(localStorage.getItem("dark")==="true") document.body.classList.add("dark");
-    function toggleDark(){
+    if(localStorage.getItem("dark") === "true") {
+      document.body.classList.add("dark");
+      document.getElementById("darkModeToggle").textContent = "☀️ Light Mode"; // Default is Dark Mode
+    }
+
+    function toggleDarkMode(){
       document.body.classList.toggle("dark");
-      localStorage.setItem("dark",document.body.classList.contains("dark"));
+      const isDark = document.body.classList.contains("dark");
+      localStorage.setItem("dark", isDark);
+      document.getElementById("darkModeToggle").textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode"; // Toggle text
     }
 
     /* REFLECTION MODE */
@@ -141,200 +148,4 @@
       const text=input.value.trim(); if(!text) return;
       const now=new Date(), key=todayKey();
       const data=JSON.parse(localStorage.getItem("journal")||"{}");
-      data[key]=data[key]||[];
-      data[key].unshift({time:now.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),text});
-      localStorage.setItem("journal",JSON.stringify(data));
-      populateYearFilter(); load();
-      input.value=""; input.focus(); autoResizeTextarea(input);
-    }
-
-    /* LOAD ENTRIES */
-    function load(year="all"){
-      journalDiv.innerHTML="";
-      const data=JSON.parse(localStorage.getItem("journal")||"{}");
-      Object.keys(data).sort().reverse().forEach(date=>{
-        if(year==="all"||date.startsWith(year)) renderDay(date,data[date]);
-      });
-      showOnThisDay();
-    }
-
-    function renderDay(date,entries){
-      const d=new Date(date);
-      const div=document.createElement("div"); div.className="day";
-      div.innerHTML=`<div class="date ${date===todayKey()?"today":""}">
-        ${date===todayKey()?"Today — ":""}${d.toDateString()}</div>`;
-      entries.forEach((e,i)=>{
-        const entryDiv = document.createElement("div");
-        entryDiv.className="entry";
-        entryDiv.innerHTML=`<div class="time">${e.time}</div><div class="text">${e.text}</div>`;
-        if(reflection){
-          const btnContainer = document.createElement("div");
-          btnContainer.className = "buttons";
-          const editBtn=document.createElement("button"); editBtn.textContent="✏️";
-          editBtn.onclick=()=>editEntryInline(date,i,entryDiv);
-          const delBtn=document.createElement("button"); delBtn.textContent="🗑️";
-          delBtn.onclick=()=>deleteEntry(date,i);
-          btnContainer.appendChild(editBtn);
-          btnContainer.appendChild(delBtn);
-          entryDiv.appendChild(btnContainer);
-        }
-        div.appendChild(entryDiv);
-      });
-      journalDiv.appendChild(div);
-    }
-
-    /* INLINE EDIT — FIXED FOR BIG TEXT */
-    function editEntryInline(date,index,entryDiv){
-      const data = JSON.parse(localStorage.getItem("journal") || "{}");
-      const currentText = data[date][index].text;
-
-      const textDiv = entryDiv.querySelector(".text");
-      textDiv.style.display = "none"; // Hide the current entry text
-
-      const existing = entryDiv.querySelector(".editContainer");
-      if(existing) existing.remove();
-
-      const editContainer = document.createElement("div");
-      editContainer.className = "editContainer";
-      editContainer.style.display = "flex";
-      editContainer.style.flexDirection = "column";
-      editContainer.style.gap = "4px";
-
-      const textarea = document.createElement("textarea");
-      textarea.value = currentText;
-      textarea.style.width="100%";
-      textarea.style.fontFamily = "Georgia, 'Times New Roman', serif"; // Ensure the font matches the new entry box
-      textarea.style.fontSize = "16px"; // Same size as new entry box
-      textarea.style.lineHeight = "1.5"; // Same line height as new entry box
-      textarea.style.padding = "10px"; // Same padding as new entry box
-      textarea.style.minHeight = "80px"; // Minimum height
-      textarea.style.resize = "none"; // Prevent resizing, it auto-resizes
-      textarea.style.overflowY = "hidden"; // Prevent overflow
-
-      function autoResize() {
-        textarea.style.height = "auto";
-        textarea.style.height = textarea.scrollHeight + "px";
-      }
-      textarea.addEventListener("input", autoResize);
-      autoResize();
-
-      const saveBtn = document.createElement("button");
-      saveBtn.textContent="💾 Save";
-      saveBtn.style.alignSelf="flex-start";
-      saveBtn.onclick = () => {
-        data[date][index].text = textarea.value.trim();
-        localStorage.setItem("journal", JSON.stringify(data));
-        load(yearFilter.value); // Reload entries
-      };
-
-      editContainer.appendChild(textarea);
-      editContainer.appendChild(saveBtn);
-      entryDiv.appendChild(editContainer);
-      textarea.focus();
-    }
-
-    /* DELETE */
-    function deleteEntry(date,index){
-      if(!confirm("Delete this entry?")) return;
-      const data=JSON.parse(localStorage.getItem("journal")||"{}");
-      data[date].splice(index,1);
-      if(data[date].length===0) delete data[date];
-      localStorage.setItem("journal",JSON.stringify(data));
-      populateYearFilter(); load(yearFilter.value);
-    }
-
-    /* YEAR FILTER */
-    function populateYearFilter(){
-      const data=JSON.parse(localStorage.getItem("journal")||"{}");
-      const years=[...new Set(Object.keys(data).map(d=>d.slice(0,4)))].sort().reverse();
-      yearFilter.innerHTML='<option value="all">All years</option>';
-      years.forEach(y=>yearFilter.innerHTML+=`<option>${y}</option>`);
-    }
-    function applyYearFilter(){ load(yearFilter.value); }
-
-    /* ON THIS DAY */
-    function showOnThisDay(){
-      const data=JSON.parse(localStorage.getItem("journal")||"{}");
-      const mmdd=todayKey().slice(5);
-      const hits=Object.keys(data).filter(d=>d.endsWith(mmdd)&&!d.startsWith(new Date().getFullYear()));
-      if(!hits.length) return;
-      const box=document.createElement("div");
-      box.className="on-this-day"; box.textContent="On this day:";
-      hits.sort().reverse().forEach(d=>{
-        data[d].forEach(e=>box.innerHTML+=`<div>${d.slice(0,4)} — ${e.text}</div>`);
-      });
-      journalDiv.prepend(box);
-    }
-
-    /* EXPORT / BACKUP */
-    function exportTxt(){ download(format("txt"),"journal.txt"); }
-    function exportMd(){ download(format("md"),"journal.md"); }
-    function format(type){
-      const data=JSON.parse(localStorage.getItem("journal")||"{}"); let out="";
-      Object.keys(data).sort().forEach(d=>{
-        data[d].forEach(e=>{out+=type==="md"?`## ${d}\n- **${e.time}** ${e.text}\n\n`:`${d} ${e.time} - ${e.text}\n`;});
-      }); return out;
-    }
-    function download(c,n){const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([c])); a.download=n; a.click();}
-    function backup(){ download(localStorage.getItem("journal")||"{}","journal-backup.json"); }
-    function restore(){ restoreFile.click(); }
-    restoreFile.onchange=e=>{
-      const r=new FileReader();
-      r.onload=ev=>{ localStorage.setItem("journal",ev.target.result); populateYearFilter(); load(); };
-      r.readAsText(e.target.files[0]);
-    };
-
-    /* READ README */
-    function showReadme(){
-      const readmeText = `
-      Quiet Journal — Quick Start (Compact & Aligned)
-
-      A minimalist offline journal. Open, write, reflect, edit, delete, and export.
-
-      Writing:
-      - Type in the textarea.
-      - Press Enter for line breaks — they will appear in display.
-      - Save: click 💾 Save Entry button or press Ctrl/Cmd + Enter.
-
-      Reflection Mode:
-      - Click Reflection to browse entries.
-      - ✏️ Edit → opens inline textarea for editing.
-      - 🗑️ Delete → click to remove an entry (with confirmation).
-      - Edit/Delete buttons are grouped together.
-
-      Filters & View:
-      - Year filter to see entries from a specific year.
-      - Dark mode toggle available.
-      - Compact layout aligns timestamps & text for easy reading.
-      - Line breaks preserved.
-
-      Backup & Export:
-      - Backup: single JSON file.
-      - Export: TXT / Markdown.
-
-      On This Day:
-      - Displays entries from previous years on the same day.
-
-      PWA & Offline:
-      - Install via browser “Add to Home Screen”.
-      - Works offline automatically.
-
-      > No password — open immediately.
-      `;
-      journalDiv.innerHTML = `<pre style="white-space:pre-wrap; font-family:inherit; padding:8px; background:rgba(0,0,0,0.02); border-radius:4px;">${readmeText}</pre>`;
-    }
-
-    /* CHEAT SHEET */
-    if(!localStorage.getItem("seenCheat")){
-      const cheat=document.getElementById("cheat");
-      cheat.style.display="block";
-      setTimeout(()=>{cheat.style.display="none"; localStorage.setItem("seenCheat","true");},5000);
-    }
-
-    /* SERVICE WORKER */
-    if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
-
-    populateYearFilter(); load();
-  </script>
-</body>
-</html>
+      data[key]=data[key]|
