@@ -1,41 +1,35 @@
-# Quiet Journal
+# Minimal Journal
 
-A **minimalist offline journal** for writing, reflecting, and tracking daily entries.
+A privacy-first, offline-only personal journal.
+
+## Core principles
+- No account
+- No sync
+- No tracking
+- Your data stays on your device
 
 ## Features
+- Offline-first (localStorage)
+- Device-based timestamps
+- Reflection mode (read, copy, delete)
+- Mark entries as IMPORTANT
+- Filter IMPORTANT entries
+- CAPS writing mode
+- Calendar view (Monday start)
+- Dark mode (default)
+- Single-file app
 
-- **Write & Edit Entries**: Type in the main textarea. Press **Enter** for line breaks. Save with 💾 button or **Ctrl/Cmd + Enter**.
-- **Inline Edit**: Edit entries in-place; large entries auto-resize just like new entries.
-- **Delete**: Remove entries with confirmation.
-- **Reflection Mode**: Browse all past entries with timestamps; edit/delete buttons grouped for easy use.
-- **Compact & Aligned Layout**: Multiple entries visible without scrolling much. Timestamps & text aligned for readability.
-- **On This Day**: View entries from previous years on the same day.
-- **Year Filter**: Quickly filter entries by year.
-- **Dark Mode Toggle**: Switch between light/dark mode; preference saved.
-- **Backup & Restore**: Save a single JSON backup file; restore easily.
-- **Export**: Export your journal as TXT or Markdown.
-- **Read README in App**: View this guide directly inside the journal.
-- **PWA & Offline Ready**: Works offline and installable via browser “Add to Home Screen”.
+## Data control
+- Copy any entry as plain text
+- Export / backup via browser storage
+- Restore by pasting data back
 
-## How to Use
+## Hosting
+Works perfectly on GitHub Pages as a single `index.html`.
 
-1. **Open the app** (index.html) in your browser.
-2. **Write a new entry** in the textarea at the top.
-3. **Save**: click 💾 or press **Ctrl/Cmd + Enter**.
-4. **Reflection Mode**: click the **Reflection** button to browse past entries.
-5. **Edit/Delete**: click ✏️ to edit inline, 🗑️ to delete.
-6. **Filters & Tools**: click ⋯ for dark mode, year filter, export, backup/restore, and reading the README.
-7. **Line breaks** are preserved for readability.
-8. **On This Day** shows entries from previous years for the current date.
+## Privacy
+No network calls.  
+No analytics.  
+No cookies.
 
-> No password required — open immediately on your device.
-
-## Installation
-
-1. Clone or download this repo.
-2. Open `index.html` in any modern browser.
-3. Optional: deploy on **GitHub Pages** for online access.
-
----
-
-This journal is **fully offline and free**, designed to keep your daily reflections compact, readable, and easily manageable.
+Your journal is yours.
