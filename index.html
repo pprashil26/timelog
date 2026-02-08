@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Journal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root {
+  --bg: #111;
+  --fg: #eaeaea;
+  --muted: #888;
+  --border: #333;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+main {
+  max-width: 720px;
+  margin: auto;
+  padding: 12px;
+}
+
+textarea {
+  width: 100%;
+  background: #000;
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+}
+
+button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--muted);
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 14px 0;
+}
+
+.entry {
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+  margin-bottom: 14px;
+}
+
+.entry.important {
+  border-color: var(--muted);
+}
+
+.time {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.text {
+  white-space: pre-wrap;
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+#calendar {
+  display: none;
+  font-size: 12px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.day {
+  text-align: center;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.day.has {
+  font-weight: bold;
+}
+
+.day.active {
+  border-bottom: 1px solid var(--fg);
+}
+</style>
+</head>
+
+<body>
+<main>
+
+<textarea id="input" rows="4" placeholder="Write…"></textarea>
+
+<div class="controls">
+  <label><input type="checkbox" id="caps"> CAPS</label>
+  <label><input type="checkbox" id="important"> IMPORTANT</label>
+  <button id="save">SAVE</button>
+</div>
+
+<hr>
+
+<div class="controls">
+  <button id="toggleCal">CALENDAR ▸</button>
+  <label><input type="checkbox" id="filterImportant"> IMPORTANT</label>
+</div>
+
+<div id="calendar"></div>
+
+<hr>
+
+<div id="entries"></div>
+
+</main>
+
+<script>
+const input = document.getElementById("input");
+const saveBtn = document.getElementById("save");
+const caps = document.getElementById("caps");
+const importantToggle = document.getElementById("important");
+const entriesDiv = document.getElementById("entries");
+const filterImportant = document.getElementById("filterImportant");
+const calendarDiv = document.getElementById("calendar");
+const toggleCal = document.getElementById("toggleCal");
+
+let selectedDate = null;
+
+function now() {
+  return new Date().toLocaleString();
+}
+
+function todayKey() {
+  return new Date().toLocaleDateString();
+}
+
+function loadData() {
+  return JSON.parse(localStorage.getItem("journal") || "{}");
+}
+
+function saveData(data) {
+  localStorage.setItem("journal", JSON.stringify(data));
+}
+
+saveBtn.onclick = saveEntry;
+document.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") saveEntry();
+});
+
+function saveEntry() {
+  if (!input.value.trim()) return;
+
+  const data = loadData();
+  const date = todayKey();
+
+  data[date] ||= [];
+  data[date].push({
+    time: now(),
+    text: caps.checked ? input.value.toUpperCase() : input.value,
+    important: importantToggle.checked
+  });
+
+  saveData(data);
+  input.value = "";
+  importantToggle.checked = false;
+  selectedDate = date;
+  render();
+}
+
+function render() {
+  const data = loadData();
+  entriesDiv.innerHTML = "";
+
+  const date = selectedDate || todayKey();
+  const list = data[date] || [];
+
+  list.forEach((entry, i) => {
+    if (filterImportant.checked && !entry.important) return;
+
+    const div = document.createElement("div");
+    div.className = "entry" + (entry.important ? " important" : "");
+
+    div.innerHTML = `
+      <div class="time">${entry.time}</div>
+      <div class="text"></div>
+      <div class="actions"></div>
+    `;
+
+    div.querySelector(".text").textContent = entry.text;
+
+    const actions = div.querySelector(".actions");
+
+    const star = document.createElement("button");
+    star.textContent = entry.important ? "★" : "☆";
+    star.onclick = () => {
+      entry.important = !entry.important;
+      saveData(data);
+      render();
+    };
+
+    const copy = document.createElement("button");
+    copy.textContent = "📋";
+    copy.onclick = () => {
+      navigator.clipboard.writeText(`${entry.time}\n\n${entry.text}`);
+    };
+
+    const del = document.createElement("button");
+    del.textContent = "🗑";
+    del.onclick = () => {
+      data[date].splice(i, 1);
+      if (!data[date].length) delete data[date];
+      saveData(data);
+      render();
+    };
+
+    actions.append(star, copy, del);
+    entriesDiv.appendChild(div);
+  });
+
+  renderCalendar();
+}
+
+toggleCal.onclick = () => {
+  calendarDiv.style.display =
+    calendarDiv.style.display === "none" ? "block" : "none";
+  toggleCal.textContent =
+    calendarDiv.style.display === "none" ? "CALENDAR ▸" : "CALENDAR ▾";
+};
+
+function renderCalendar() {
+  const data = loadData();
+  calendarDiv.innerHTML = "";
+
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+
+  const first = new Date(y, m, 1).getDay();
+  const days = new Date(y, m + 1, 0).getDate();
+
+  const grid = document.createElement("div");
+  grid.className = "calendar-grid";
+
+  for (let i = 0; i < first; i++) grid.appendChild(document.createElement("div"));
+
+  for (let d = 1; d <= days; d++) {
+    const date = new Date(y, m, d).toLocaleDateString();
+    const cell = document.createElement("div");
+    cell.className = "day";
+
+    if (data[date]) cell.classList.add("has");
+    if (date === selectedDate) cell.classList.add("active");
+
+    cell.textContent = d;
+    cell.onclick = () => {
+      selectedDate = date;
+      render();
+    };
+
+    grid.appendChild(cell);
+  }
+
+  calendarDiv.appendChild(grid);
+}
+
+render();
+</script>
+</body>
+</html>
