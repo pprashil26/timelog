@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Minimal Journal</title>
+
+<style>
+:root {
+  --bg: #111;
+  --fg: #eee;
+  --muted: #888;
+  --accent: #4f8cff;
+  --important: #ffb703;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  padding: 12px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  background: transparent;
+  color: var(--fg);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  border: none;
+  outline: none;
+}
+
+button {
+  background: none;
+  border: none;
+  color: var(--fg);
+  margin-right: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button.active {
+  color: var(--accent);
+}
+
+.entry {
+  margin-bottom: 14px;
+}
+
+.entry.important .text {
+  color: var(--important);
+}
+
+.time {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.actions button {
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+#calendarWrap {
+  display: none;
+  margin: 6px 0;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.day {
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.day.has {
+  font-weight: bold;
+}
+
+.day.sel {
+  color: var(--accent);
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<textarea id="input" placeholder="Write…"></textarea>
+
+<div>
+  <button id="caps">CAPS</button>
+  <button id="imp">IMPORTANT</button>
+  <button id="save">SAVE</button>
+  <button id="dark">☀︎ / ☾</button>
+</div>
+
+<button id="calToggle">CALENDAR ▸</button>
+<div id="calendarWrap">
+  <div id="calendar" class="calendar"></div>
+</div>
+
+<div>
+  <button id="filterImp">IMPORTANT ONLY</button>
+  <button id="reflect">REFLECTION</button>
+</div>
+
+<div id="entries"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let entries = JSON.parse(localStorage.getItem("entries") || "[]");
+let caps = false, important = false, reflection = false, filterImportant = false;
+let selectedDate = null;
+
+// Save entries
+function saveStore() { localStorage.setItem("entries", JSON.stringify(entries)); }
+
+// Render entries
+function render() {
+  $("entries").innerHTML = "";
+  let list = entries.slice().reverse();
+  if(filterImportant) list = list.filter(e=>e.important);
+  if(selectedDate) list = list.filter(e=>e.date===selectedDate);
+
+  list.forEach(e=>{
+    const d = document.createElement("div");
+    d.className = "entry" + (e.important ? " important" : "");
+    d.innerHTML = `
+      <div class="time">${e.time}</div>
+      <div class="text">${e.text.replace(/\n/g,"<br>")}</div>
+      ${reflection?`
+      <div class="actions">
+        <button onclick="copyText(${e.id})">COPY</button>
+        <button onclick="deleteEntry(${e.id})">DELETE</button>
+        <button onclick="toggleImp(${e.id})">★</button>
+      </div>`:""}
+    `;
+    $("entries").appendChild(d);
+  });
+}
+
+// Add new entry
+function add() {
+  let text = $("input").value.trim();
+  if(!text) return;
+  if(caps) text = text.toUpperCase();
+  const now = new Date();
+  entries.push({
+    id: Date.now(),
+    text,
+    important,
+    date: now.toISOString().slice(0,10),
+    time: now.toLocaleString()
+  });
+  $("input").value = "";
+  important = false;
+  $("imp").classList.remove("active");
+  saveStore();
+  render();
+  renderCalendar();
+}
+
+// Delete entry with confirmation
+function deleteEntry(id) {
+  if(!confirm("Delete this entry?")) return;
+  entries = entries.filter(e=>e.id!==id);
+  saveStore();
+  render();
+  renderCalendar();
+}
+
+// Copy plain text
+function copyText(id) {
+  const e = entries.find(x=>x.id===id);
+  navigator.clipboard.writeText(e.time+"\n"+e.text);
+}
+
+// Toggle important
+function toggleImp(id) {
+  const e = entries.find(x=>x.id===id);
+  e.important=!e.important;
+  saveStore();
+  render();
+}
+
+// Event listeners
+$("save").onclick = add;
+$("caps").onclick = ()=>{ caps=!caps; $("caps").classList.toggle("active",caps); };
+$("imp").onclick = ()=>{ important=!important; $("imp").classList.toggle("active",important); };
+$("reflect").onclick = ()=>{ reflection=!reflection; $("reflect").classList.toggle("active",reflection); render(); };
+$("filterImp").onclick = ()=>{ filterImportant=!filterImportant; $("filterImp").classList.toggle("active",filterImportant); render(); };
+$("dark").onclick = ()=>{ document.body.classList.toggle("light"); };
+$("calToggle").onclick = ()=>{
+  $("calendarWrap").style.display = $("calendarWrap").style.display==="none"?"block":"none";
+  $("calToggle").textContent=$("calendarWrap").style.display==="none"?"CALENDAR ▸":"CALENDAR ▾";
+};
+
+// Render calendar Monday-first
+function renderCalendar(){
+  const cal = $("calendar"); cal.innerHTML="";
+  const now=new Date(); const y=now.getFullYear(); const m=now.getMonth();
+  const firstDay=(new Date(y,m,1).getDay()+6)%7;
+  const days=new Date(y,m+1,0).getDate();
+  for(let i=0;i<firstDay;i++) cal.appendChild(document.createElement("div"));
+  for(let d=1;d<=days;d++){
+    const date=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const div=document.createElement("div"); div.textContent=d; div.className="day";
+    if(entries.some(e=>e.date===date)) div.classList.add("has");
+    if(date===selectedDate) div.classList.add("sel");
+    div.onclick=()=>{ selectedDate=selectedDate===date?null:date; render(); renderCalendar(); };
+    cal.appendChild(div);
+  }
+}
+
+// Initial render
+render();
+renderCalendar();
+
+// Keyboard shortcut Ctrl+Enter
+document.addEventListener("keydown", e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==="Enter") add();
+});
+</script>
+</body>
+</html>
