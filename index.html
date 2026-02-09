@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiet Journal</title>
+
+<style>
+:root {
+  --bg: #fefefe;
+  --fg: #111;
+  --muted: #888;
+  --accent: #4f8cff;
+  --important: #ffb703;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  padding: 12px;
+}
+
+h1 {
+  font-weight: normal;
+  margin: 0 0 12px 0;
+  font-size: 22px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  background: transparent;
+  color: var(--fg);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  border: none;
+  outline: none;
+}
+
+button {
+  background: none;
+  border: none;
+  color: var(--fg);
+  margin-right: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button.active {
+  color: var(--accent);
+}
+
+.entry {
+  margin-bottom: 14px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.entry.important {
+  border-left: 4px solid var(--important);
+}
+
+.time {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.date-heading {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.actions button {
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.top-bar .right-buttons button {
+  margin-left: 12px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="top-bar">
+  <h1>Quiet Journal</h1>
+  <div class="right-buttons">
+    <button id="reflect">Reflection</button>
+    <button id="dark">🌙 Dark Mode</button>
+  </div>
+</div>
+
+<textarea id="input" placeholder="Write…"></textarea>
+
+<div style="margin:6px 0;">
+  <button id="caps">CAPS</button>
+  <button id="imp">IMPORTANT</button>
+  <button id="save">💾 Save Entry (Ctrl/Cmd + Enter)</button>
+</div>
+
+<div id="entries"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let entries = JSON.parse(localStorage.getItem("entries") || "[]");
+let caps = false, important = false, reflection = false;
+
+// Save entries to localStorage
+function saveStore() { localStorage.setItem("entries", JSON.stringify(entries)); }
+
+// Render entries
+function render() {
+  $("entries").innerHTML = "";
+  let list = entries.slice().reverse();
+  list.forEach(e=>{
+    const d = document.createElement("div");
+    d.className = "entry" + (e.important ? " important" : "");
+    d.innerHTML = `
+      <div class="date-heading">${e.dateHeading}</div>
+      <div class="time">${e.time}</div>
+      <div class="text">${e.text.replace(/\n/g,"<br>")}</div>
+      ${reflection?`
+      <div class="actions">
+        <button onclick="copyText(${e.id})">COPY</button>
+        <button onclick="deleteEntry(${e.id})">DELETE</button>
+        <button onclick="toggleImp(${e.id})">★</button>
+      </div>`:""}
+    `;
+    $("entries").appendChild(d);
+  });
+}
+
+// Add new entry
+function add() {
+  let text = $("input").value.trim();
+  if(!text) return;
+  if(caps) text = text.toUpperCase();
+  const now = new Date();
+  const dateHeading = `Today — ${now.toDateString()}`;
+  entries.push({
+    id: Date.now(),
+    text,
+    important,
+    dateHeading,
+    time: now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+  });
+  $("input").value = "";
+  important = false;
+  $("imp").classList.remove("active");
+  saveStore();
+  render();
+}
+
+// Delete entry with confirmation
+function deleteEntry(id) {
+  if(!confirm("Delete this entry?")) return;
+  entries = entries.filter(e=>e.id!==id);
+  saveStore();
+  render();
+}
+
+// Copy plain text
+function copyText(id) {
+  const e = entries.find(x=>x.id===id);
+  navigator.clipboard.writeText(e.dateHeading+"\n"+e.time+"\n"+e.text);
+}
+
+// Toggle important
+function toggleImp(id) {
+  const e = entries.find(x=>x.id===id);
+  e.important=!e.important;
+  saveStore();
+  render();
+}
+
+// Event listeners
+$("save").onclick = add;
+$("caps").onclick = ()=>{ caps=!caps; $("caps").classList.toggle("active",caps); };
+$("imp").onclick = ()=>{ important=!important; $("imp").classList.toggle("active",important); };
+$("reflect").onclick = ()=>{ reflection=!reflection; $("reflect").classList.toggle("active",reflection); render(); };
+$("dark").onclick = ()=>{ document.body.classList.toggle("dark-mode"); };
+document.addEventListener("keydown", e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==="Enter") add();
+});
+
+// Optional dark mode styles
+const style = document.createElement('style');
+style.textContent=`
+body.dark-mode {
+  background:#111;
+  color:#eee;
+}
+body.dark-mode .entry { background:#222; }
+body.dark-mode .entry.important { border-left:4px solid #ffb703; }
+body.dark-mode button { color:#eee; }
+`;
+document.head.appendChild(style);
+
+render();
+</script>
+</body>
+</html>
